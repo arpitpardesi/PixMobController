@@ -5,9 +5,9 @@ import sounddevice as sd
 import librosa
 import librosa.display
 import random
-from python_tools.pixmob_conversion_funcs import bits_to_arduino_string
-from python_tools.effect_definitions import base_color_effects, tail_codes, special_effects
-import python_tools.config as cfg
+from configs.pixmob_conversion_funcs import (bits_to_arduino_string)
+from configs.effect_definitions import base_color_effects, tail_codes, special_effects
+import configs.config as cfg
 
 # Setup for Arduino connection
 arduino = serial.Serial(port=cfg.ARDUINO_SERIAL_PORT, baudrate=cfg.ARDUINO_BAUD_RATE, timeout=.1)
