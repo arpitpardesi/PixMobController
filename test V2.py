@@ -18,14 +18,18 @@ arduino = serial.Serial(port=cfg.ARDUINO_SERIAL_PORT, baudrate=cfg.ARDUINO_BAUD_
 sample_rate = 44100  # Standard audio sampling rate
 chunk_size = 0.3  # Audio analysis window (seconds) 0.3
 frame_size = 1024  # Small buffer for lower latency 1024
-history_size = 10  # Store last few beat detections for stability
+history_size = 20  # Store last few beat detections for stability
 
 # Effect categories for variety
-base_effects = list(base_color_effects.keys())
-spec_effects = list(
-    special_effects.keys())  # ['RED_3', 'GREEN', 'BLUE',  'MAGENTA_2',  'YELLOW_4', 'ORANGE', 'WHITISH', 'WHITISH_LONG']
-color_effects = base_effects + spec_effects  # ['RED_3', 'GREEN', 'BLUE',  'MAGENTA_2',  'YELLOW_4', 'ORANGE', 'WHITISH', 'WHITISH_LONG']
+color_effects = list(base_color_effects.keys()) + list(special_effects.keys())
 fade_effects = ['FADE_1', 'FADE_2', 'FADE_4', 'FADE_5']
+strobe_effects = ['SLOW_WHITE', 'SLOW_TURQUOISE', 'SLOW_ORANGE', 'SLOW_YELLOW']
+
+# base_effects = list(base_color_effects.keys())
+# spec_effects = list(
+#     special_effects.keys())  # ['RED_3', 'GREEN', 'BLUE',  'MAGENTA_2',  'YELLOW_4', 'ORANGE', 'WHITISH', 'WHITISH_LONG']
+# color_effects = base_effects + spec_effects  # ['RED_3', 'GREEN', 'BLUE',  'MAGENTA_2',  'YELLOW_4', 'ORANGE', 'WHITISH', 'WHITISH_LONG']
+# fade_effects = ['FADE_1', 'FADE_2', 'FADE_4', 'FADE_5']
 
 # Rolling beat detection buffer
 beat_history = []
