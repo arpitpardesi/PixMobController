@@ -12,15 +12,14 @@ import configs.config as cfg
 
 # Setup for Arduino connection
 arduino = serial.Serial(port=cfg.ARDUINO_SERIAL_PORT, baudrate=cfg.ARDUINO_BAUD_RATE, timeout=0.1)
-# time.sleep(2.5)
 
 # Parameters for real-time audio analysis
-SAMPLE_RATE = 44100  # Audio sampling rate
-CHUNK_DURATION = 0.2  # Analysis window for low latency
-FRAME_SIZE = 1024  # Buffer size
-HISTORY_SIZE = 15  # Increased stability for beat detection
+SAMPLE_RATE = 44100
+CHUNK_DURATION = 0.2
+FRAME_SIZE = 1024
+HISTORY_SIZE = 15
 
-# Rolling buffers
+# Buffers for audio data
 audio_buffer = deque(maxlen=int(SAMPLE_RATE * CHUNK_DURATION))
 beat_history = deque(maxlen=HISTORY_SIZE)
 
@@ -40,37 +39,40 @@ def send_effect(main_effect, tail_code=None):
 
     arduino_string = bits_to_arduino_string(effect_bits)
     arduino.write(bytes(arduino_string, 'utf-8'))
-    # arduino.flush()
     print(f"Sent Effect: {main_effect} | Tail: {tail_code}")
 
 
-def analyze_audio(audio_data):
+def advanced_audio_analysis(audio_data):
     y = audio_data.flatten()
     rms_energy = np.sqrt(np.mean(y ** 2))
-    silence_threshold = np.median(np.abs(y)) * 2
+    silence_threshold = np.median(np.abs(y)) * 1.5
 
+    # Silence detection
     if rms_energy < silence_threshold:
         return None, None, 0
 
-    # Compute MFCCs
-    mfccs = librosa.feature.mfcc(y=y, sr=SAMPLE_RATE, n_mfcc=13)
-    avg_mfcc = np.mean(mfccs, axis=1)
+    # Split frequency bands
+    stft = np.abs(librosa.stft(y, n_fft=2048, hop_length=512))
+    low_energy = np.mean(stft[:512])
+    mid_energy = np.mean(stft[512:1024])
+    high_energy = np.mean(stft[1024:])
 
-    # Compute Spectral Centroid
-    spectral_centroid = librosa.feature.spectral_centroid(y=y, sr=SAMPLE_RATE)
-    avg_centroid = np.mean(spectral_centroid)
+    # Use dynamic color selection from the provided list
+    effect = random.choice(color_effects)
 
+    # Dynamic intensity and beat detection
     tempo, _ = librosa.beat.beat_track(y=y, sr=SAMPLE_RATE)
+    if tempo == 0:
+        tempo = 120  # Default tempo to avoid zero-division
 
-    # if avg_centroid < 1500:
-    #     effect = random.choice(['RED_3', 'YELLOW_4', 'PULSE_RED'])  # Warm colors for lower frequencies
-    # elif avg_centroid < 3000:
-    #     effect = random.choice(['GREEN', 'SLOW_GREEN', 'YELLOW_GREEN'])  # Mid-range for natural sounds
-    # else:
-    #     effect = random.choice(['BLUE', 'LIGHT_BLUE', 'MAGENTA_2'])  # High-pitch sounds get cool colors
+    beat_interval = 60.0 / float(tempo) * 0.5
 
-    effect = random.choice(list(base_color_effects.keys()))
-    tail_code = random.choice(fade_effects)
+    # Switch tail effects based on energy changes
+    if high_energy > (low_energy + mid_energy):
+        tail_code = random.choice(strobe_effects)
+    else:
+        tail_code = random.choice(fade_effects)
+
     return effect, tail_code, tempo
 
 
@@ -84,21 +86,17 @@ def led_control_loop():
     while True:
         if len(audio_buffer) > 0:
             audio_data = np.concatenate(list(audio_buffer))
-            effect, tail_code, tempo = analyze_audio(audio_data)
+            effect, tail_code, tempo = advanced_audio_analysis(audio_data)
 
             if effect:
                 send_effect(effect, tail_code)
 
             tempo = tempo.item() if isinstance(tempo, np.ndarray) else tempo
-            beat_interval = 60.0 / float(tempo) if tempo > 0 else 0.5
-
-            # time.sleep(beat_interval)
-            time.sleep(max(beat_interval * 0.5, 0.1))
+            time.sleep(max(60.0 / tempo * 0.5, 0.1))
         else:
             time.sleep(0.05)
 
 
-# Start audio stream and LED control thread
 stream = sd.InputStream(callback=audio_callback, channels=1, samplerate=SAMPLE_RATE, blocksize=FRAME_SIZE)
 stream.start()
 threading.Thread(target=led_control_loop, daemon=True).start()

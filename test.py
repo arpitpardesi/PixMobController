@@ -17,7 +17,7 @@ time.sleep(2.5)
 sample_rate = 44100  # Standard audio sampling rate
 chunk_size = 0.3  # Audio analysis window (seconds)
 frame_size = 1024  # Small buffer for lower latency
-history_size = 10  # Store last few beat detections for stability
+history_size = 15  # Store last few beat detections for stability
 
 # Effect categories for variety
 color_effects = ['RED_3', 'GREEN', 'BLUE',  'MAGENTA_2',  'YELLOW_4', 'ORANGE', 'WHITISH', 'WHITISH_LONG']
@@ -43,7 +43,7 @@ def send_effect(main_effect, tail_code, sleep_after_send=False):
 
     arduino_string_ver = bits_to_arduino_string(effect_bits)
     arduino.write(bytes(arduino_string_ver, 'utf-8'))
-    arduino.flush()
+    # arduino.flush()
 
     if sleep_after_send:
         time.sleep(0.01 + 0.0008 * len(effect_bits))
