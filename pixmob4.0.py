@@ -109,7 +109,7 @@ def led_control_loop():
                 send_effect(effect, tail_code, brightness)
 
             tempo = max(tempo, 1)
-            time.sleep(max(60.0 / float(tempo) * 0.5, 0.1))
+            time.sleep(max(60.0 / float(tempo), * 0.5, 0.1))
         else:
             time.sleep(0.05)
 
