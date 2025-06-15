@@ -1,16 +1,14 @@
 # This file contains definitions for light effect IR codes we have discovered.
 
-
-# flipped 46 and 47
-
-
 # These are the base color effects. Transmitting them alone will cause the bracelets to turn the specified color for a
 # brief time and then turn off. Appending a "tail code" (see below) will modify the effect.
+
+
 base_color_effects = {
     "RED": [1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0,
             0, 0, 1],
     "RED_2": [1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0,
-              0, 0, 0, 1 ],
+              0, 0, 0, 1],
     "RED_3": [1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0,
               0, 0, 0, 1],
     "RED_4": [1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0,
